@@ -9,7 +9,7 @@ on:
   pull_request:
     branches: [ master ]
   schedule:
-    - cron: '00 20 * * *'
+    - cron: '30 19 * * *'
 
 jobs:
   build:
@@ -20,7 +20,7 @@ jobs:
         python-version: [3.8]
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v2
     - name: Test
       run: |
         python3 main.py
