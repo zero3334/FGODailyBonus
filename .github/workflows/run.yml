@@ -5,32 +5,35 @@ name: Python package
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
   schedule:
     - cron: '30 19 * * *'
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Test
-      run: |
-        python3 main.py
-      env:
-        userIds: ${{ secrets.GAME_USERIDS }}
-        authKeys: ${{ secrets.GAME_AUTHKEYS }}
-        secretKeys: ${{ secrets.GAME_SECRETKEYS }}
-        verCode: ${{ secrets.GAME_VERCODE }}
-        UserAgent: ${{ secrets.GAME_USERAGENT }}
-        TGBotToken: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TGAdminId: ${{ secrets.TELEGRAM_ADMIN_ID }}
-        GithubToken: ${{ secrets.VERY_IMPORTANT_TOKEN }}
-        GithubName: ${{ secrets.VERY_IMPORTANT_NAME }}
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Test
+        run: python main.py
+        env:
+          userIds: ${{ secrets.GAME_USERIDS }}
+          authKeys: ${{ secrets.GAME_AUTHKEYS }}
+          secretKeys: ${{ secrets.GAME_SECRETKEYS }}
+          verCode: ${{ secrets.GAME_VERCODE }}
+          UserAgent: ${{ secrets.GAME_USERAGENT }}
+          TGBotToken: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TGAdminId: ${{ secrets.TELEGRAM_ADMIN_ID }}
+          GithubToken: ${{ secrets.VERY_IMPORTANT_TOKEN }}
+          GithubName: ${{ secrets.VERY_IMPORTANT_NAME }}
