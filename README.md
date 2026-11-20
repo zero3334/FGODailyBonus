@@ -130,6 +130,15 @@ unset GH_TOKEN
 > [!CAUTION]
 > Docker 环境变量中的 Token 可被有 Docker 管理权限的人通过 `docker inspect` 查看。不要在不可信的共享 VPS 上运行，泄露后立即撤销 Token。
 
+> 如需恢复 GitHub 自带的定时签到，在 .github/workflows/run.yml 中将开头的触发配置改为：
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 23 * * *'
+
+这里的 30 23 * * * 是 UTC 每天 23:30，对应北京时间次日 07:30。GitHub 定时任务可能延迟，不保证准点运行。恢复前先用 docker stop fgo-dispatch 停止 VPS 上的容器，避免同一天执行两次。
+
 ## secrets列表
 | key                  | value                                                                 | description                                 |
 |----------------------|-----------------------------------------------------------------------|---------------------------------------------|
