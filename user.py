@@ -105,11 +105,29 @@ class user:
         # 角色信息
         res += f'等级: {lv}\n石头: {stone}\n呼符: {ticket}\n'
 
-        # 现有体力
-        act_max = data['cache']['replaced']['userGame'][0]['actMax']
-        act_recover_at = data['cache']['replaced']['userGame'][0]['actRecoverAt']
-        now_act = (act_max - (act_recover_at - mytime.GetTimeStamp()) / 300)
+        # AP保存：每消耗40 AP兑换1个青銅の果実，仅使用青銅の苗木(itemId=103)
+        game = data['cache']['replaced']['userGame'][0]
+        act_max = int(game['actMax'])
+        act_recover_at = int(game['actRecoverAt'])
+        server_time = int(data['cache'].get('serverTime', mytime.GetTimeStamp()))
+        ap_until_full = max(0, act_recover_at - server_time)
+        now_act = max(0, min(act_max, int(act_max - ap_until_full / 300)))
+        saplings = sum(int(item['num']) for item in data['cache']['replaced']['userItem']
+                       if int(item['itemId']) == 103)
+        apple_num = min(now_act // 40, saplings)
+        if apple_num > 0:
+            try:
+                self.builder_.AddParameter('id', '13000000')
+                self.builder_.AddParameter('num', str(apple_num))
+                self.builder_.AddParameter('dayKey', '0')
+                self.Post(f'{fgourl.server_addr_}/shop/purchase?_userId={self.user_id_}')
+                now_act -= apple_num * 40
+                print(f'AP存储成功: 青銅の果実 {apple_num}个，消耗青銅の苗木 {apple_num}个')
+            except Exception as ex:
+                print(f'AP存储失败: {ex}')
         res += f'体力: {now_act} / {act_max}\n'
+        if apple_num > 0:
+            res += f'青铜苹果存储: {apple_num}个\n'
 
         # 友情点
         add_fp = data['response'][0]['success']['addFriendPoint']
