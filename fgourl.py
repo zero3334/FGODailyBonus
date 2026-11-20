@@ -25,11 +25,33 @@ user_agent_ = 'Dalvik/2.1.0 (Linux; U; Android 11; Pixel 5 Build/RD1A.201105.003
 
 # ==== User Info ====
 def ReadConf():
-    data = json.loads(
-        requests.get(
-            url=f'https://raw.githubusercontent.com/{github_name_}/FGODailyBonusLog/main/cfg.json', verify=False
-        ).text
-    )
+    raw_url = f'https://raw.githubusercontent.com/{github_name_}/FGODailyBonusLog/main/cfg.json'
+    try:
+        response = requests.get(raw_url, timeout=20)
+        response.raise_for_status()
+        data = response.json()
+        print('Read config from public raw URL')
+    except (requests.RequestException, ValueError) as raw_error:
+        if not github_token_:
+            raise Exception(
+                f'Could not read public config and GithubToken is not configured: {raw_error}'
+            ) from raw_error
+
+        api_url = f'https://api.github.com/repos/{github_name_}/FGODailyBonusLog/contents/cfg.json'
+        headers = {
+            'Accept': 'application/vnd.github+json',
+            'Authorization': f'Bearer {github_token_}',
+            'X-GitHub-Api-Version': '2022-11-28',
+            'User-Agent': f'{github_name_}_bot',
+        }
+        response = requests.get(api_url, headers=headers, params={'ref': 'main'}, timeout=20)
+        response.raise_for_status()
+        file_data = response.json()
+        if file_data.get('encoding') != 'base64' or 'content' not in file_data:
+            raise Exception('GitHub Contents API did not return base64 file content')
+        data = json.loads(base64.b64decode(file_data['content']).decode('utf-8'))
+        print('Read config from GitHub Contents API')
+
     global app_ver_, data_ver_, date_ver_, asset_bundle_folder_, data_server_folder_crc_
     app_ver_ = data['global']['appVer']
     data_ver_ = data['global']['dataVer']
