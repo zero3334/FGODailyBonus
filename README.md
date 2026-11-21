@@ -18,7 +18,7 @@ fork 自 [hexstr/FGODailyBonus](https://github.com/hexstr/FGODailyBonus)，在�
 > 
 > ![a1](imgs/a1.jpg)
 > 
-> ![a2](imgs/a2.jpg)
+> 
 >
 > 
 > 
