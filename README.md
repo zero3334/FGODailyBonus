@@ -68,7 +68,7 @@ fork 自 [hexstr/FGODailyBonus](https://github.com/hexstr/FGODailyBonus)，在�
    和`日志文件`  
    ![7-2](imgs/7-2.jpg)
 
-8. 需要每日自动运行时，按下方 [Docker 定时触发](#docker-定时触发) 部署容器。不要同时保留 `schedule`，否则可能同一天签到两次。
+8. Actions有时不稳定有延迟，可考虑使用 [Docker 定时触发](#docker-定时触发) 部署容器。不要同时保留 `schedule`，否则可能同一天签到两次。
 
 > [!WARNING]
 > 上面的 `cfg.json` 是上游示例，版本信息可能过期。不要在公开仓库上传游戏凭据、Token 或签到日志。私有日志仓库需要带 Token 的 GitHub Contents API 读取配置；上游原版仅通过公开 raw URL 读取，不能直接读取私有仓库。
