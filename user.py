@@ -7,7 +7,7 @@ import fgourl
 import mytime
 import rsa
 import requests
-from bonus_actions import friend_pool, ticket_orders
+from bonus_actions import friend_pool, LIMITED_FRIEND_POOLS, ticket_orders
 
 
 class ParameterBuilder:
@@ -163,7 +163,7 @@ class user:
         return res
 
     def drawFreeFriendship(self):
-        """Try one daily ten-pull, matching F-D-L behavior; no repeat or paid gacha."""
+        """Port F-D-L normal selection and fixed limited pool requests."""
         try:
             catalog = requests.get(
                 'https://raw.githubusercontent.com/DNNDHH/GSubList/Main/update.json', timeout=20)
@@ -171,23 +171,32 @@ class user:
             sub_id = friend_pool(catalog.json(), int(self.login_data_['cache']['serverTime']))
         except (requests.RequestException, ValueError, KeyError, TypeError):
             return '友情召唤: 卡池数据不可用，跳过\n'
-        self.builder_.AddParameter('storyAdjustIds', '[]')
-        self.builder_.AddParameter('selectBonusList', '')
-        for key, value in (('gachaId', 1), ('gachaSubId', sub_id), ('num', 10),
-                           ('ticketItemId', 0), ('shopIdIndex', 1)):
-            self.builder_.AddParameter(key, str(value))
-        try:
-            data = self.Post(f'{fgourl.server_addr_}/gacha/draw?_userId={self.user_id_}')
-        except Exception:
-            return '友情召唤: 请求失败或当日免费次数已用，未重试\n'
-        draws = [item['success']['gachaInfos'] for item in data.get('response', [])
-                 if item.get('resCode') == '00'
-                 and isinstance(item.get('success'), dict)
-                 and isinstance(item['success'].get('gachaInfos'), list)]
-        if len(draws) != 1 or not draws[0]:
-            return '友情召唤: 结果未确认，未重试\n'
-        count = len(draws[0])
-        return f'友情召唤: 十连完成，结果 {count} 项\n'
+        if sub_id is None:
+            sub_id = '0'
+        results = []
+        draw_specs = [('友情池', '1', sub_id)] + [
+            ('限定池', gacha_id, limited_sub_id)
+            for gacha_id, limited_sub_id in LIMITED_FRIEND_POOLS
+        ]
+        for label, gacha_id, pool_sub_id in draw_specs:
+            self.builder_.AddParameter('storyAdjustIds', '[]')
+            self.builder_.AddParameter('selectBonusList', '')
+            for key, value in (('gachaId', gacha_id), ('gachaSubId', pool_sub_id), ('num', 10),
+                               ('ticketItemId', 0), ('shopIdIndex', 1)):
+                self.builder_.AddParameter(key, str(value))
+            try:
+                data = self.Post(f'{fgourl.server_addr_}/gacha/draw?_userId={self.user_id_}')
+                draws = [item['success']['gachaInfos'] for item in data.get('response', [])
+                         if item.get('resCode') == '00'
+                         and isinstance(item.get('success'), dict)
+                         and isinstance(item['success'].get('gachaInfos'), list)]
+                if len(draws) != 1 or not draws[0]:
+                    results.append(f'友情召唤({label} {gacha_id}/{pool_sub_id}): 结果未确认，未重试\n')
+                else:
+                    results.append(f'友情召唤({label} {gacha_id}/{pool_sub_id}): 十连完成，结果 {len(draws[0])} 项\n')
+            except Exception:
+                results.append(f'友情召唤({label} {gacha_id}/{pool_sub_id}): 请求失败或免费次数已用，未重试\n')
+        return ''.join(results)
 
     def buyTickets(self):
         """Buy available monthly/event tickets with mana prisms, once per listing."""
