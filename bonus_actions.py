@@ -5,17 +5,25 @@ Behavior adapted from DNNDHH/F-D-L (license not declared in that repository).
 
 
 def friend_pool(catalog, now):
-    choices = []
+    """Match F-D-L GetGachaSubIdFP: choose highest-priority open entry."""
+    best = None
     if not isinstance(catalog, list):
-        return 0
+        return None
     for row in catalog:
         try:
-            if (int(row['gachaId']) == 1 and
-                int(row['openedAt']) <= now < int(row['closedAt'])):
-                choices.append((int(row['priority']), int(row['id'])))
+            if int(row['openedAt']) <= now <= int(row['closedAt']):
+                candidate = (int(row['priority']), int(row['id']))
+                if best is None or candidate[0] > best[0]:
+                    best = candidate
         except (KeyError, TypeError, ValueError):
             continue
-    return max(choices)[1] if choices else 0
+    return str(best[1]) if best is not None else None
+
+
+LIMITED_FRIEND_POOLS = (
+    ('20', '8'), ('21', '8'), ('22', '4'),
+    ('23', '4'), ('24', '2'), ('25', '2'),
+)
 
 
 def ticket_orders(catalog, user_shops, mana, now):
