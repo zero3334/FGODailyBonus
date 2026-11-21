@@ -180,10 +180,13 @@ class user:
             data = self.Post(f'{fgourl.server_addr_}/gacha/draw?_userId={self.user_id_}')
         except Exception:
             return '友情召唤: 请求失败或当日免费次数已用，未重试\n'
-        draw = next((item for item in data['response'] if item.get('nid') == 'gacha'), None)
-        if draw is None or draw.get('resCode') != '00':
+        draws = [item['success']['gachaInfos'] for item in data.get('response', [])
+                 if item.get('resCode') == '00'
+                 and isinstance(item.get('success'), dict)
+                 and isinstance(item['success'].get('gachaInfos'), list)]
+        if len(draws) != 1 or not draws[0]:
             return '友情召唤: 结果未确认，未重试\n'
-        count = len(draw.get('success', {}).get('gachaInfos', []))
+        count = len(draws[0])
         return f'友情召唤: 十连完成，结果 {count} 项\n'
 
     def buyTickets(self):
