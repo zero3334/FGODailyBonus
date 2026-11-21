@@ -26,6 +26,21 @@ LIMITED_FRIEND_POOLS = (
 )
 
 
+def limited_friend_pools(catalog, now):
+    """Return active limited friendship pool pairs from the live catalog."""
+    if not isinstance(catalog, list):
+        return []
+    pools = []
+    for row in catalog:
+        try:
+            if (int(row['gachaId']) in {20, 21, 22, 23, 24, 25}
+                and int(row['openedAt']) <= now <= int(row['closedAt'])):
+                pools.append((str(row['gachaId']), str(row['id'])))
+        except (KeyError, TypeError, ValueError):
+            continue
+    return list(dict.fromkeys(pools))
+
+
 def ticket_orders(catalog, user_shops, mana, now):
     """Return current monthly/event ticket orders, bounded by prism balance."""
     if not isinstance(catalog, list) or not isinstance(user_shops, list):
