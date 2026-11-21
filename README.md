@@ -155,4 +155,5 @@ on:
 ## 致谢与许可
 
 - 原始项目：[hexstr/FGODailyBonus](https://github.com/hexstr/FGODailyBonus)
+- 致谢: [DNNDHH/F-D-L](https://github.com/DNNDHH/F-D-L)
 - 许可：[MIT](LICENSE)
