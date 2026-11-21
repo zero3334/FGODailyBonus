@@ -75,7 +75,7 @@ fork 自 [hexstr/FGODailyBonus](https://github.com/hexstr/FGODailyBonus)，在�
 
 ## Docker 定时触发
 
-VPS 上的容器仅负责调用 GitHub 的 `workflow_dispatch` API；游戏签到仍由 GitHub Actions 执行。容器每天按上海时间在 **07:00–08:00** 随机选定一分钟触发。如果 VPS 停机错过该时间段，当天跳过，不会补跑；重启后保留当天已选时间与发送状态。
+VPS 上的容器仅负责调用 GitHub 的 `workflow_dispatch` API；游戏签到仍由 GitHub Actions 执行。容器每天按北京时间在 **07:00–08:00** 随机选定一分钟触发。如果 VPS 停机错过该时间段，当天跳过，不会补跑；重启后保留当天已选时间与发送状态。
 
 ### 准备
 
