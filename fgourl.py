@@ -92,13 +92,15 @@ TelegramAdminId = ''
 
 
 def SendMessageToAdmin(message):
-    if TelegramBotToken != 'nullvalue':
+    if TelegramBotToken and TelegramBotToken != 'nullvalue':
         nowtime = mytime.GetFormattedNowTime()
-        url = f'https://api.telegram.org/bot{TelegramBotToken}/sendMessage?chat_id={TelegramAdminId}&parse_mode=markdown&text=_{nowtime}_\n{message}'
-        result = json.loads(requests.get(url, verify=False).text)
-        if not result['ok']:
-            print(result)
-            print(message)
+        response = requests.post(
+            f'https://api.telegram.org/bot{TelegramBotToken}/sendMessage',
+            data={'chat_id': TelegramAdminId, 'text': f'{nowtime}\n{message}'},
+            timeout=20,
+        )
+        if not response.ok:
+            print(f'Telegram notification failed: HTTP {response.status_code}')
 
 
 # ===== End =====
