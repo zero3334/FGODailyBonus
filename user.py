@@ -7,7 +7,7 @@ import fgourl
 import mytime
 import rsa
 import requests
-from bonus_actions import friend_pool, LIMITED_FRIEND_POOLS, ticket_orders
+from bonus_actions import friend_pool, limited_friend_pools, ticket_orders
 
 
 class ParameterBuilder:
@@ -168,7 +168,10 @@ class user:
             catalog = requests.get(
                 'https://raw.githubusercontent.com/DNNDHH/GSubList/Main/update.json', timeout=20)
             catalog.raise_for_status()
-            sub_id = friend_pool(catalog.json(), int(self.login_data_['cache']['serverTime']))
+            catalog_data = catalog.json()
+            server_time = int(self.login_data_['cache']['serverTime'])
+            sub_id = friend_pool(catalog_data, server_time)
+            limited_pools = limited_friend_pools(catalog_data, server_time)
         except (requests.RequestException, ValueError, KeyError, TypeError):
             return '友情召唤: 卡池数据不可用，跳过\n'
         if sub_id is None:
@@ -176,7 +179,7 @@ class user:
         results = []
         draw_specs = [('友情池', '1', sub_id)] + [
             ('限定池', gacha_id, limited_sub_id)
-            for gacha_id, limited_sub_id in LIMITED_FRIEND_POOLS
+            for gacha_id, limited_sub_id in limited_pools
         ]
         for label, gacha_id, pool_sub_id in draw_specs:
             self.builder_.AddParameter('storyAdjustIds', '[]')
