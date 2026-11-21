@@ -24,12 +24,11 @@ if UA != 'nullvalue':
 
 
 def main():
-    fgourl.SendMessageToAdmin(f'铛铛铛( \`д´) *{mytime.GetNowTimeHour()}点* 了')
     if userNums == authKeyNums and userNums == secretKeyNums:
         fgourl.ReadConf()
         fgourl.gameData()
         print(f'待签到: {userNums}个')
-        res = '【登录信息】\n'
+        res = 'FGO 日服每日签到\n\n'
         for i in range(userNums):
             try:
                 instance = user(userIds[i], authKeys[i], secretKeys[i])
@@ -38,6 +37,8 @@ def main():
                 time.sleep(2)
                 instance.topHome()
                 time.sleep(2)
+                res += instance.drawFreeFriendship()
+                res += instance.buyTickets()
             except Exception as ex:
                 print(f'{i}th user login failed: {ex}')
                 traceback.print_exc()
