@@ -8,6 +8,7 @@ fork 自 [hexstr/FGODailyBonus](https://github.com/hexstr/FGODailyBonus)，在�
 - 支持**私有日志仓库**（改用 GitHub API 读写，不再依赖公开的 raw 地址）
 - 添加自动种苹果功能
 - 添加 Docker 定时触发(Actions触发不稳定时可以考虑使用)
+- 参考 [DNNDHH/F-D-L](https://github.com/DNNDHH/F-D-L) 的行为，签到后尝试一次友情十连，并兑换当期每月/活动呼符（不兑换素材券或抽付费池）
 
 > [!NOTE]
 > 现在FGO新增了`play integrity api`，使用这个脚本可能造成账号被标记，导致登录时需要满足`App Check`的条件，不然会出现`99-`开头的错误代码
